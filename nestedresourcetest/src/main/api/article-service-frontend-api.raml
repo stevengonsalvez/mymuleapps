@@ -1,0 +1,49 @@
+#%RAML 0.8
+# The title of this API must be reflected in the endpoint URL under which this API is exposed
+title: Article Frontend API
+# The version of the API definition contained in this RAML file, in the format major.minor
+version: 1.0
+# There can only be one baseUri for this API:
+# By convention it is set to the endpoint URL in the production environment where this API is exposed.
+# It must end in the major version number of this API, i.e. the first part of the version property.Specify the property as 1
+baseUri: https://localhost:7999/test
+#mediaType: application/json
+#securitySchemes: !include classpath:api/common-security-schemes.yaml
+#securedBy: [basic_auth]
+# Define generally useful schemas, first including some from common-components-lib
+#schemas: 
+#  - !include classpath:api/common-schemas-json.yaml
+documentation:
+  - title: article service Frontend API Main Documentation
+    content: |
+      This is the ** Article Frontend RESTful web service API**.
+      It is a clean RESTful facade infront of the somewhat system specific backend protocols.
+      More specifically, this API communicates primarily in terms of rationally designed JSON messages. 
+      It follows good RESTful design principles (with the exception of hypermedia/HATEOS).
+#traits: !include classpath:api/common-traits.yaml
+/article/reserve-number:
+  get:
+    description: | 
+      This api invocation is to invoke the SAP BAPI to reserve article numbers and send back a number
+      which can be used by the client to assign article numbers.
+      The request may also contain query parameters from the the M&S Common Message Header.
+    # apply traits to include common request query parameters and common error reponses
+#    is: [with-common-params,with-common-error-responses-json]
+    queryParameters:
+      Quantity:
+        required: true
+        description: quantity of numbers to reserve (SAP QUANTITY)
+        type: integer
+        maximum: 100
+        minimum: 1        
+        example: 10
+    responses: 
+      200:
+        description: | 
+          A JSON document conforming to the M&S Common Message Envelope, 
+          with a payload that is the JSON-representation of the article reservation
+        body: 
+          application/json: 
+            schema: !include article-service-reserve-number-frontend-api-post-response.schema.json
+            example: !include article-service-reserve-number-frontend-api-post-response-example1.json         
+            

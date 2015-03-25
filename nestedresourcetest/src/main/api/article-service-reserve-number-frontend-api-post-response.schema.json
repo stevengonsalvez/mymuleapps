@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://jsonschema.net",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "LastReservedNumber": {
+      "id": "http://jsonschema.net/LastReservedNumber",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "LastReservedNumber"
+  ]
+}

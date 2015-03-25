@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" version="EE-3.6.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd">
+     <apikit:config name="Router" raml="article-service-frontend-api.raml" consoleEnabled="true" consolePath="console" doc:name="Router"/>
+     
+     	<!-- an exception strategy that can be used for all RESTful APIs that return JSON payloads -->
+	<apikit:mapping-exception-strategy name="default-exc-strategy-api-json" >
+		<apikit:mapping statusCode="400">
+			<apikit:exception value="org.mule.module.apikit.exception.BadRequestException" />
+			<logger message="Bad request" level="INFO"  doc:name="Bad request" />
+			<set-property propertyName="Content-Type" value="application/json" doc:name="JSON" />
+			<set-payload value="{ &quot;message&quot;: &quot;Bad request: #[exception.causeException.message]&quot; }" doc:name="Bad request" />
+		</apikit:mapping>
+		<apikit:mapping statusCode="401">
+			<apikit:exception value="org.mule.api.security.UnauthorisedException" />
+			<logger message="Unauthorized" level="WARN"  doc:name="Unauthorized" />
+			<set-property propertyName="Content-Type" value="application/json" doc:name="JSON" />
+			<set-payload value="{ &quot;message&quot;: &quot;Unauthorized&quot; }" doc:name="Unauthorized" />
+			
+		</apikit:mapping>
+		<apikit:mapping statusCode="404">
+			<apikit:exception value="org.mule.module.apikit.exception.NotFoundException" />
+			<logger message="Resource not found" level="INFO"  doc:name="Resource not found" />
+			<set-property propertyName="Content-Type" value="application/json" doc:name="JSON" />
+			<set-payload value="{ &quot;message&quot;: &quot;Resource not found&quot; }" doc:name="Resource not found" />
+			
+		</apikit:mapping>
+		<apikit:mapping statusCode="405">
+			<apikit:exception value="org.mule.module.apikit.exception.MethodNotAllowedException" />
+			<logger message="Method not allowed" level="INFO"  doc:name="Method not allowed" />
+			<set-property propertyName="Content-Type" value="application/json" doc:name="JSON" />
+			<set-payload value="{ &quot;message&quot;: &quot;Method not allowed&quot; }" doc:name="Method not allowed" />
+			
+		</apikit:mapping>
+		<apikit:mapping statusCode="406">
+			<apikit:exception value="org.mule.module.apikit.exception.NotAcceptableException" />
+			<logger message="Not acceptable" level="INFO"  doc:name="Not acceptable" />
+			<set-property propertyName="Content-Type" value="application/json" doc:name="JSON" />
+			<set-payload value="{ &quot;message&quot;: &quot;Not acceptable&quot; }" doc:name="Not acceptable" />
+			
+		</apikit:mapping>
+		<apikit:mapping statusCode="409">
+			<apikit:exception value="com.mulesoft.mule.module.datamapper.api.exception.DataMapperExecutionException" />
+			<logger message="Internal mapping error" level="ERROR"  doc:name="Internal mapping error" />
+			<set-property propertyName="Content-Type" value="application/json" doc:name="JSON" />
+			<set-payload value="{ &quot;message&quot;: &quot;Internal mapping error&quot; }" doc:name="Internal mapping error" />
+			
+		</apikit:mapping>
+		<apikit:mapping statusCode="415">
+			<apikit:exception value="org.mule.module.apikit.exception.UnsupportedMediaTypeException" />
+			<logger message="Unsupported media type" level="INFO"  doc:name="Unsupported media type" />
+			<set-property propertyName="Content-Type" value="application/json" doc:name="JSON" />
+			<set-payload value="{ &quot;message&quot;: &quot;Unsupported media type&quot; }" doc:name="Unsupported media type" />
+			
+		</apikit:mapping>
+		<apikit:mapping statusCode="500">
+			<apikit:exception value="java.lang.Exception" />
+			<logger message="Internal processing error" level="ERROR"  doc:name="Internal processing error" />
+			<set-property propertyName="Content-Type" value="application/json" doc:name="JSON" />
+			<set-payload value="{ &quot;message&quot;: &quot;Internal processing error&quot; }" doc:name="Internal processing error" />
+			
+		</apikit:mapping>
+	</apikit:mapping-exception-strategy>
+	
+    <flow name="nestedresourcetestFlow">
+       <http:inbound-endpoint doc:name="HTTP" exchange-pattern="request-response" host="localhost" path="test" port="7999"/>
+        <apikit:router config-ref="Router" doc:name="APIkit Router"/>
+        <exception-strategy ref="default-exc-strategy-api-json" doc:name="Reference Exception Strategy"/>
+    </flow>
+    <flow name="get:/article/reserve-number:Router" processingStrategy="synchronous">
+        <echo-component doc:name="Echo"/>
+		<!-- payload is of no relevance here -->
+	</flow>
+</mule>
